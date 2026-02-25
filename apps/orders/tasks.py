@@ -86,13 +86,15 @@ def _build_slack_payload(order, event: str, channel: str) -> dict:
 
 
 @shared_task(
-    bind=True,
     autoretry_for=(httpx.HTTPError,),
     retry_backoff=True,
     retry_backoff_max=60,
+    retry_jitter=True,
     max_retries=3,
+    ignore_result=True,
+    reject_on_worker_lost=True,
 )
-def send_order_notification(self, order_id: str, event: str):
+def send_order_notification(order_id: str, event: str):
     """Send order notification to Slack via chat.postMessage API."""
     slack_enabled = getattr(settings, "SLACK_ENABLED", False)
     if not slack_enabled:
