@@ -51,17 +51,14 @@ class TestSendOrderNotification:
         mock_response = MagicMock()
         mock_response.raise_for_status.return_value = None
         mock_response.json.return_value = {"ok": True, "ts": "1234567890.123456"}
-        mock_client = MagicMock()
-        mock_client.__enter__ = MagicMock(return_value=mock_client)
-        mock_client.__exit__ = MagicMock(return_value=False)
+
+        mock_client = mock_client_cls.return_value.__enter__.return_value
         mock_client.post.return_value = mock_response
-        mock_client_cls.return_value = mock_client
 
         result = send_order_notification(str(sample_order.id), "created")
 
         assert result["status"] == "sent"
         assert result["order_number"] == sample_order.order_number
-        # Verify called with Slack API URL and Bearer token
         call_args = mock_client.post.call_args
         assert call_args[0][0] == SLACK_API_URL
         assert call_args[1]["headers"]["Authorization"] == "Bearer xoxb-test-token"
@@ -86,16 +83,13 @@ class TestSendOrderNotification:
         mock_response = MagicMock()
         mock_response.raise_for_status.return_value = None
         mock_response.json.return_value = {"ok": True, "ts": "1234567890.123456"}
-        mock_client = MagicMock()
-        mock_client.__enter__ = MagicMock(return_value=mock_client)
-        mock_client.__exit__ = MagicMock(return_value=False)
+
+        mock_client = mock_client_cls.return_value.__enter__.return_value
         mock_client.post.return_value = mock_response
-        mock_client_cls.return_value = mock_client
 
         result = send_order_notification(str(order.id), "status_updated")
 
         assert result["status"] == "sent"
-        # Verify Block Kit payload with channel
         call_args = mock_client.post.call_args
         payload = call_args[1]["json"]
         assert payload["channel"] == "#orders"
