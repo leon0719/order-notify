@@ -3,7 +3,7 @@
 import re
 import uuid
 
-from apps.core.log_config import request_id_var, user_id_var
+from apps.core.log_config import logger
 
 _VALID_REQUEST_ID = re.compile(r"^[a-zA-Z0-9\-]{1,64}$")
 
@@ -20,17 +20,13 @@ class RequestContextMiddleware:
             request_id = raw_id
         else:
             request_id = str(uuid.uuid4())[:8]
-        request_id_token = request_id_var.set(request_id)
 
         if hasattr(request, "user") and request.user.is_authenticated:
-            user_id_token = user_id_var.set(str(request.user.id))
+            user_id = str(request.user.id)
         else:
-            user_id_token = user_id_var.set("-")
+            user_id = "-"
 
-        try:
+        with logger.contextualize(request_id=request_id, user_id=user_id):
             response = self.get_response(request)
             response["X-Request-ID"] = request_id
             return response
-        finally:
-            request_id_var.reset(request_id_token)
-            user_id_var.reset(user_id_token)
