@@ -5,10 +5,19 @@ from functools import lru_cache
 from pathlib import Path
 
 import dj_database_url
+from pydantic import BaseModel
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 _env = os.getenv("ENV", "local")
 _env_file = f".env.{_env}"
+
+
+class SlackSettings(BaseModel):
+    """Slack notification settings."""
+
+    bot_token: str = ""
+    channel: str = ""
+    enabled: bool = False
 
 
 class Settings(BaseSettings):
@@ -19,6 +28,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
         case_sensitive=False,
+        env_nested_delimiter="__",
     )
 
     # Required
@@ -29,22 +39,11 @@ class Settings(BaseSettings):
 
     # Optional
     DEBUG: bool = False
-    ALLOWED_HOSTS: str = "localhost,127.0.0.1"
-    CORS_ALLOWED_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000"
+    ALLOWED_HOSTS: list[str] = ["localhost", "127.0.0.1"]
+    CORS_ALLOWED_ORIGINS: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
 
-    # Slack (chat.postMessage API)
-    SLACK_BOT_TOKEN: str = ""
-    SLACK_CHANNEL: str = ""
-    SLACK_ENABLED: bool = False
-
-    def _parse_comma_separated(self, value: str) -> list[str]:
-        return [v.strip() for v in value.split(",") if v.strip()]
-
-    def get_allowed_hosts(self) -> list[str]:
-        return self._parse_comma_separated(self.ALLOWED_HOSTS)
-
-    def get_cors_allowed_origins(self) -> list[str]:
-        return self._parse_comma_separated(self.CORS_ALLOWED_ORIGINS)
+    # Slack (nested)
+    SLACK: SlackSettings = SlackSettings()
 
 
 @lru_cache
@@ -58,7 +57,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 SECRET_KEY = settings.SECRET_KEY
 DEBUG = settings.DEBUG
-ALLOWED_HOSTS = settings.get_allowed_hosts()
+ALLOWED_HOSTS = settings.ALLOWED_HOSTS
+CORS_ALLOWED_ORIGINS = settings.CORS_ALLOWED_ORIGINS
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -86,7 +86,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-CORS_ALLOWED_ORIGINS = settings.get_cors_allowed_origins()
 CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = "config.urls"
@@ -139,9 +138,9 @@ CELERY_TASK_SOFT_TIME_LIMIT = 25
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 # Slack
-SLACK_ENABLED = settings.SLACK_ENABLED
-SLACK_BOT_TOKEN = settings.SLACK_BOT_TOKEN
-SLACK_CHANNEL = settings.SLACK_CHANNEL
+SLACK_ENABLED = settings.SLACK.enabled
+SLACK_BOT_TOKEN = settings.SLACK.bot_token
+SLACK_CHANNEL = settings.SLACK.channel
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
