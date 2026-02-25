@@ -1,0 +1,137 @@
+[project]
+name = "order-notify"
+version = "0.1.0"
+description = "Django Ninja + Celery + RabbitMQ Order Notification System"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    # Django & API
+    "django>=5.2",
+    "django-ninja>=1.4",
+    "django-ninja-extra>=0.21",
+    "django-cors-headers>=4.6",
+    # Database
+    "psycopg[binary]>=3.2",
+    "dj-database-url>=2.2",
+    # Celery
+    "celery>=5.4",
+    "flower>=2.0",
+    # HTTP Client (for Slack webhook)
+    "httpx>=0.28",
+    # Cache & Result Backend
+    "redis>=5.2",
+    # Settings & Serialization
+    "pydantic-settings>=2.7",
+    "orjson>=3.10",
+    # ASGI Server
+    "uvicorn[standard]>=0.34",
+    # Logging
+    "loguru>=0.7.3",
+    # UUID7
+    "uuid6>=2025.0.1",
+]
+
+[dependency-groups]
+dev = [
+    # Linting & Formatting
+    "ruff>=0.14.4",
+    # Type Checking
+    "mypy>=1.14",
+    "django-stubs>=5.2",
+    "django-stubs-ext>=5.2",
+    "types-redis>=4.6",
+    # Testing
+    "pytest>=8.3",
+    "pytest-django>=4.9",
+    "pytest-cov>=6.0",
+    "httpx>=0.28",
+    # Celery testing
+    "pytest-celery>=1.0",
+    # Pre-commit
+    "pre-commit>=4.5.1",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+exclude = ["*/migrations/*"]
+
+[tool.ruff.lint]
+select = [
+    "F",       # Pyflakes
+    "I",       # isort
+    "N",       # pep8-naming
+    "W",       # pycodestyle warnings
+    "UP",      # pyupgrade
+    "B",       # flake8-bugbear
+    "C4",      # flake8-comprehensions
+    "SIM",     # flake8-simplify
+    "S",       # flake8-bandit (security)
+    "T20",     # flake8-print
+    "RUF",     # Ruff specific
+    "PLC0415", # pylint - import at top level
+]
+ignore = [
+    "N815",    # mixedCase in Schema
+    "N805",    # Pydantic validator uses cls
+    "S101",    # assert in tests
+    "S104",    # bind all IPs in containers
+    "S105",    # hardcoded password (false positives)
+    "S106",    # hardcoded password argument
+    "S110",    # try-except-pass
+    "S113",    # httpx timeout=None
+    "S301",    # serialization
+    "S311",    # pseudo-random for non-crypto
+    "RUF001",  # Ambiguous unicode in strings
+    "RUF002",  # Ambiguous unicode in docstrings
+    "RUF003",  # Ambiguous unicode in comments
+    "RUF012",  # Mutable class attributes
+    "SIM102",  # Nested if statements
+    "SIM105",  # Use contextlib.suppress
+    "SIM108",  # Use ternary operator
+    "B006",    # Mutable default argument
+    "B008",    # Function call in default argument (Django Ninja pattern)
+    "B905",    # zip without strict
+    "C416",    # Unnecessary list comprehension
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["PLC0415"]
+
+[tool.mypy]
+python_version = "3.12"
+plugins = ["mypy_django_plugin.main"]
+warn_return_any = false
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = false
+disallow_untyped_defs = false
+check_untyped_defs = true
+strict_equality = true
+ignore_missing_imports = true
+no_implicit_optional = false
+show_error_codes = true
+show_column_numbers = true
+pretty = true
+exclude = [
+    "migrations/",
+    "venv/",
+    ".venv/",
+]
+
+[[tool.mypy.overrides]]
+module = "*.migrations.*"
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "*.tests.*"
+ignore_errors = false
+disallow_untyped_defs = false
+check_untyped_defs = false
+
+[tool.django-stubs]
+django_settings_module = "config.settings.local"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.local"
+python_files = ["test_*.py"]
