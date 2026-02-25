@@ -10,11 +10,12 @@ from ninja import Router
 from redis.exceptions import RedisError
 
 from apps.core.log_config import logger
+from apps.core.schemas import HealthSchema
 
 router = Router()
 
 
-@router.get("/health/", response={200: dict, 503: dict})
+@router.get("/health/", response={200: HealthSchema, 503: HealthSchema})
 def health_check(request):
     """Health check endpoint for load balancers and container orchestration."""
     health = {

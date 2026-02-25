@@ -1,11 +1,11 @@
 """Order Pydantic schemas."""
 
-from datetime import datetime
 from decimal import Decimal
-from uuid import UUID
 
-from ninja import Schema
+from ninja import ModelSchema, Schema
 from pydantic import Field
+
+from apps.orders.models import Order
 
 
 class OrderCreateSchema(Schema):
@@ -23,18 +23,22 @@ class OrderStatusUpdateSchema(Schema):
     status: str = Field(pattern=r"^(pending|confirmed|shipped|delivered|cancelled)$")
 
 
-class OrderSchema(Schema):
+class OrderSchema(ModelSchema):
     """Schema for order response."""
 
-    id: UUID
-    order_number: str
-    customer_name: str
-    product_name: str
-    quantity: int
-    price: Decimal
-    status: str
-    created_at: datetime
-    updated_at: datetime
+    class Meta:
+        model = Order
+        fields = [
+            "id",
+            "order_number",
+            "customer_name",
+            "product_name",
+            "quantity",
+            "price",
+            "status",
+            "created_at",
+            "updated_at",
+        ]
 
 
 class PaginatedOrdersSchema(Schema):
