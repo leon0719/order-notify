@@ -69,7 +69,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Third party
     "corsheaders",
-    "ninja_extra",
     # Local apps
     "apps.core",
     "apps.orders",

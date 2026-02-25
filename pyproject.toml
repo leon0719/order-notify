@@ -8,7 +8,6 @@ dependencies = [
     # Django & API
     "django>=5.2",
     "django-ninja>=1.4",
-    "django-ninja-extra>=0.21",
     "django-cors-headers>=4.6",
     # Database
     "psycopg[binary]>=3.2",

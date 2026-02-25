@@ -6,14 +6,14 @@ from django.contrib import admin
 from django.db import DatabaseError, IntegrityError
 from django.http import HttpRequest
 from django.urls import path
-from ninja_extra import NinjaExtraAPI
+from ninja import NinjaAPI
 
 from apps.core.api import router as core_router
 from apps.core.exceptions import AppValidationError, InvalidStateError, NotFoundError
 from apps.core.log_config import logger
 from apps.orders.api import router as orders_router
 
-api = NinjaExtraAPI(
+api = NinjaAPI(
     title="Order Notify API",
     version="1.0.0",
     description="Django Ninja + Celery Order Notification System",
