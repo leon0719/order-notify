@@ -28,8 +28,6 @@ VALID_TRANSITIONS: dict[str, list[str]] = {
 
 def generate_order_number() -> str:
     """Generate a unique order number like ORD-A3X7K9."""
-    from apps.orders.models import Order
-
     for _ in range(5):
         suffix = "".join(random.choices(string.ascii_uppercase + string.digits, k=6))
         order_number = f"ORD-{suffix}"
