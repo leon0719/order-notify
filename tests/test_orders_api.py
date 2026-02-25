@@ -1,6 +1,5 @@
 """Tests for orders API endpoints."""
 
-import json
 from unittest.mock import patch
 
 import pytest
@@ -16,14 +15,12 @@ class TestCreateOrder:
             mock_task.delay.return_value = None
             response = api_client.post(
                 "/api/orders/",
-                data=json.dumps(
-                    {
-                        "customer_name": "Alice",
-                        "product_name": "Widget",
-                        "quantity": 3,
-                        "price": "29.99",
-                    }
-                ),
+                data={
+                    "customer_name": "Alice",
+                    "product_name": "Widget",
+                    "quantity": 3,
+                    "price": "29.99",
+                },
                 content_type="application/json",
             )
 
@@ -40,7 +37,7 @@ class TestCreateOrder:
         """POST /api/orders/ with missing fields should return 422."""
         response = api_client.post(
             "/api/orders/",
-            data=json.dumps({"customer_name": "Alice"}),
+            data={"customer_name": "Alice"},
             content_type="application/json",
         )
         assert response.status_code == 422
@@ -49,14 +46,12 @@ class TestCreateOrder:
         """POST /api/orders/ with invalid quantity should return 422."""
         response = api_client.post(
             "/api/orders/",
-            data=json.dumps(
-                {
-                    "customer_name": "Alice",
-                    "product_name": "Widget",
-                    "quantity": 0,
-                    "price": "10.00",
-                }
-            ),
+            data={
+                "customer_name": "Alice",
+                "product_name": "Widget",
+                "quantity": 0,
+                "price": "10.00",
+            },
             content_type="application/json",
         )
         assert response.status_code == 422
@@ -123,7 +118,7 @@ class TestUpdateOrderStatus:
             mock_task.delay.return_value = None
             response = api_client.patch(
                 f"/api/orders/{sample_order.id}/status/",
-                data=json.dumps({"status": "confirmed"}),
+                data={"status": "confirmed"},
                 content_type="application/json",
             )
 
@@ -135,7 +130,7 @@ class TestUpdateOrderStatus:
         """PATCH with invalid transition should return 409."""
         response = api_client.patch(
             f"/api/orders/{sample_order.id}/status/",
-            data=json.dumps({"status": "delivered"}),
+            data={"status": "delivered"},
             content_type="application/json",
         )
         assert response.status_code == 409
@@ -151,7 +146,7 @@ class TestUpdateOrderStatus:
         )
         response = api_client.patch(
             f"/api/orders/{order.id}/status/",
-            data=json.dumps({"status": "pending"}),
+            data={"status": "pending"},
             content_type="application/json",
         )
         assert response.status_code == 409
