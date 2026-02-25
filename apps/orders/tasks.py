@@ -119,7 +119,8 @@ def send_order_notification(order_id: str, event: str):
         "Content-Type": "application/json; charset=utf-8",
     }
 
-    with httpx.Client(timeout=10) as client:
+    timeout = httpx.Timeout(10.0, connect=5.0)
+    with httpx.Client(timeout=timeout) as client:
         response = client.post(SLACK_API_URL, headers=headers, json=payload)
         response.raise_for_status()
 

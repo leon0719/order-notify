@@ -21,7 +21,6 @@ dependencies = [
     "redis>=5.2",
     # Settings & Serialization
     "pydantic-settings>=2.7",
-    "orjson>=3.10",
     # ASGI Server
     "uvicorn[standard]>=0.34",
     # Logging
