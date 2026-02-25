@@ -28,6 +28,14 @@ VALID_TRANSITIONS: dict[str, list[str]] = {
 
 def generate_order_number() -> str:
     """Generate a unique order number like ORD-A3X7K9."""
+    from apps.orders.models import Order
+
+    for _ in range(5):
+        suffix = "".join(random.choices(string.ascii_uppercase + string.digits, k=6))
+        order_number = f"ORD-{suffix}"
+        if not Order.objects.filter(order_number=order_number).exists():
+            return order_number
+    # Final attempt — if collision, unique constraint will catch it
     suffix = "".join(random.choices(string.ascii_uppercase + string.digits, k=6))
     return f"ORD-{suffix}"
 
@@ -43,6 +51,7 @@ class Order(models.Model):
         max_length=20,
         choices=OrderStatus.choices,
         default=OrderStatus.PENDING,
+        db_index=True,
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
